@@ -8,7 +8,7 @@ const pointsController = new PointsController() //instancia da classe para conse
 const itemsController = new ItemsControllers()
 
 
-routes.get('/items',itemsController.show) 
+routes.get('/items',itemsController.index) 
 
 routes.post('/points',pointsController.create)
 routes.get('/points/:id',pointsController.show)

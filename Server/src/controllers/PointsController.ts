@@ -18,7 +18,7 @@ class PointsController {
         const trx = await knex.transaction() //para caso der erro nos inserts ele n executa, colocar a variavel no lugar do knex para usar
     
         const insertedIds = await trx('points').insert({ //peguei via requisicao e insiro no bd
-            image: 'image-fake',
+            image: 'https://images.unsplash.com/photo-1556767576-5ec41e3239ea?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=200',
             name,
             email,
             whatsapp,
@@ -38,8 +38,10 @@ class PointsController {
         })
     
         await trx('point_items').insert(point_items); //inserindo na tabela de relacionamento
+
+        await trx.commit()
     
-        return response.json({success: true})
+        return response.json({name,email,whatsapp,latitude,longitude,city,uf,item})
     }
 
     async show(request: Request, response: Response) {
@@ -53,7 +55,7 @@ class PointsController {
 
         const items = await knex('items').select('*')
         .join('point_items', 'items.id', '=',  'point_items.item_id')
-        .where('point_items.point_id', id)
+        .where('point_items.point_id', id) //todos items desse point
         .select('items.title')//somente esse camos
         response.json({point, items})
     }
@@ -62,9 +64,20 @@ class PointsController {
 
         const {city, uf, items} = request.query //filtrando caso exista
 
-        // const parseId = items.s
+        const parsedItems = String(items)
+        .split(',')
+        .map(items => Number(items.trim()))
 
-        response.json({message: "ok"})
+        //get items
+        
+        const points = await knex('points').select('*')
+        .join('point_items', 'points.id', '=', 'point_items.point_id') 
+        .whereIn('point_items.item_id',parsedItems)
+        .where('points.city', String(city))
+        .where('points.uf', String(uf))
+        .distinct()
+  
+        response.json(points)
         console.log(city, uf, items)
 
     }
