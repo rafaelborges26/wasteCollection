@@ -1,26 +1,25 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import './App.css'
+
+import Header from './Header'
+
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+  const [c, setC] = useState(0) //valor inicial de estado - [valor do estado(valor do c), funcao pra atualizar o valor do estado]
+
+  function handleButtonClick() {
+    setC(c + 1)//contador
+  }
+
+  return ( <div>
+          <Header title= {`contador: ${c}`} />
+          
+          <h1>{c} </h1>
+          <button type="button" onClick={handleButtonClick}>Aumentar</button>
+        </div>
+        )
 }
 
 export default App;
+
+
