@@ -1,3 +1,2 @@
 
-DELETE FROM point_items;
-DELETE FROM points;
+SELECT * FROM items
