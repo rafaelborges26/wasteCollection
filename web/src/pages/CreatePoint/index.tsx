@@ -6,6 +6,7 @@ import { FiArrowLeft } from 'react-icons/fi'
 import { Map, TileLayer, Marker } from 'react-leaflet' //marker é o alfinete q aparece no mapa
 import api from '../../services/api'
 import axios from 'axios'
+import { LeafletMouseEvent } from 'leaflet'
 
 interface Item {
     id: number,
@@ -24,8 +25,14 @@ interface IBGECityresponse {
 const CreatePoint = () => {
     const [items, setItems] = useState<Item[]>([]) //sempre q criamos um estado para um array ou objt: informar manualmente o tipo da var, para isso criamos uma interface
     const [ufs, setUfs] = useState<string[]>([])
-    const [ufselected, setUfSelected] = useState('0')
     const [cities, setCities] = useState<string[]>([])
+
+    const [ufselected, setUfSelected] = useState('0')
+    const [citySelected, setCitySelected] = useState('0')
+    const [selectMapPosition, setSelectMapPosition] = useState<[number,number]>([0,0])
+    const [initialPosition, setInitialPosition] = useState<[number,number]>([0,0])
+
+
     useEffect(() => { //funcao do q fazer e quando fazer
         api.get('items').then(response => { //entao buscamos os items da api
             setItems(response.data) //setando os dados da api para o estado. Assim a const items tera os valores do json
@@ -43,15 +50,35 @@ const CreatePoint = () => {
         //carregar sempre que o usuario selecionar uma uf
         if(ufselected === '0')
             return
+
         axios.get<IBGECityresponse[]>(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${ufselected}/municipios`).then(response => { 
-            const citynames = response.data.map(city => city.nome) //pegando as siglas
+            const citynames = response.data.map(city => city.nome) //pegando o nome da cdd
             setCities(citynames)
         })
     },[ufselected]) //toda vez q a var mudar ele recarregar o useEffector
 
-    function changeUf(event: ChangeEvent<HTMLSelectElement>) {
-        const uf = event.target.value //pegar o valor q o user digitou
+
+    useEffect( () => {
+        navigator.geolocation.getCurrentPosition(position => {
+            const { latitude, longitude } = position.coords
+            setInitialPosition([latitude, longitude])
+        })
+
+    })
+
+
+    function handleChangeUF(event: ChangeEvent<HTMLSelectElement>) {
+        const uf = event.target.value //pegar o valor q o user selecionou
         setUfSelected(uf)
+    }
+
+    function handleChangeCity(event: ChangeEvent<HTMLSelectElement>) {
+        const city = event.target.value
+        setCitySelected(city)
+    }
+
+    function handleSelectMap(event: LeafletMouseEvent) {
+        setSelectMapPosition([event.latlng.lat, event.latlng.lng])
     }
 
     return (
@@ -104,18 +131,18 @@ const CreatePoint = () => {
                     <span>Selecione o endereço no mapa</span>
                 </legend>
 
-                <Map center={[-24.002202, -46.3108895]} zoom={14}>
+                <Map center={initialPosition} zoom={14} onClick={handleSelectMap} >
                 <TileLayer ////layout do mapa
                     attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors' 
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-                <Marker position={[-24.002202, -46.3108895]}/> 
+                <Marker position={selectMapPosition}/> 
 
                 </Map>
                 <div className="field-group">
                     <div className="field">
                         <label htmlFor="uf">Estado (UF)</label>
-                        <select value={ufselected} name="uf" id="uf" onChange={changeUf}>
+                        <select value={ufselected} name="uf" id="uf" onChange={handleChangeUF}>
                             <option value="0">Selecione um estado</option>
                             {ufs.map(uf => (
                             <option key={uf} value={uf} >{uf}</option>
@@ -124,10 +151,10 @@ const CreatePoint = () => {
                     </div>
                     <div className="field"> 
                         <label htmlFor="city">Cidade</label>
-                        <select name="city" id="city">
+                        <select value={citySelected} onChange={handleChangeCity} name="city" id="city">
                             <option value="0">Selecione uma cidade</option>
                             {cities.map(city => (
-                                <option key={city} value={city}>{city}</option>
+                                <option key= {city} value={city}>{city}</option>
                             ))}
                         </select>
                     </div>
