@@ -108,27 +108,27 @@ const CreatePoint = () => {
         }
     }
 
-    function handleSubmit(event: FormEvent) {
+    async function handleSubmit(event: FormEvent) {
         event.preventDefault() //para n recarregar a pagina
 
         const { name, email, whatsapp } = inputData
         const uf = ufselected
         const city = citySelected
         const [latitude, longitude] =  selectMapPosition
-        const items = selectItem
+        const item = selectItem
 
         const data = {
             name,
             email,
             whatsapp,
-            uf,
-            city,
             latitude,
             longitude,
-            items
+            city,
+            uf,
+            item
         }
-
-        api.post('items', data)
+        
+        await api.post('points', data)
         alert("Ponto de coleta cadastrado com sucesso")
         history.push('/') //redireciona para a home
     }
