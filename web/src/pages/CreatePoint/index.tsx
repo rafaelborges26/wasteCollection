@@ -1,7 +1,7 @@
-import React, { useEffect, useState, ChangeEvent } from 'react'
+import React, { useEffect, useState, ChangeEvent, FormEvent } from 'react'
 import './styles.css'
 import logo from '../../assets/logo.svg'
-import { Link } from 'react-router-dom'
+import { Link, useHistory } from 'react-router-dom'
 import { FiArrowLeft } from 'react-icons/fi'
 import { Map, TileLayer, Marker } from 'react-leaflet' //marker é o alfinete q aparece no mapa
 import api from '../../services/api'
@@ -27,10 +27,18 @@ const CreatePoint = () => {
     const [ufs, setUfs] = useState<string[]>([])
     const [cities, setCities] = useState<string[]>([])
 
+    const [inputData, setInputData] = useState({
+        name: '',
+        email: '',
+        whatsapp: ''
+    })
     const [ufselected, setUfSelected] = useState('0')
+    const [selectItem, setSelectItem] = useState<number[]>([])
     const [citySelected, setCitySelected] = useState('0')
     const [selectMapPosition, setSelectMapPosition] = useState<[number,number]>([0,0])
     const [initialPosition, setInitialPosition] = useState<[number,number]>([0,0])
+
+    const history = useHistory()
 
 
     useEffect(() => { //funcao do q fazer e quando fazer
@@ -81,6 +89,50 @@ const CreatePoint = () => {
         setSelectMapPosition([event.latlng.lat, event.latlng.lng])
     }
 
+    function handleChangeInput(event: ChangeEvent<HTMLInputElement>) {
+        const { name, value } = event.target 
+        setInputData({ ...inputData, [name]: value })        
+    }
+
+    function handleSelectItem(id: number) {
+
+        const alreadySelected = selectItem.findIndex(item => item === id)
+            
+        if(alreadySelected >= 0)
+        {
+            const disSelect = selectItem.filter(item => item !== id) //retornar todos menos o id filtrado
+            setSelectItem(disSelect)
+            
+        }else {
+        setSelectItem([ ...selectItem, id])
+        }
+    }
+
+    function handleSubmit(event: FormEvent) {
+        event.preventDefault() //para n recarregar a pagina
+
+        const { name, email, whatsapp } = inputData
+        const uf = ufselected
+        const city = citySelected
+        const [latitude, longitude] =  selectMapPosition
+        const items = selectItem
+
+        const data = {
+            name,
+            email,
+            whatsapp,
+            uf,
+            city,
+            latitude,
+            longitude,
+            items
+        }
+
+        api.post('items', data)
+        alert("Ponto de coleta cadastrado com sucesso")
+        history.push('/') //redireciona para a home
+    }
+
     return (
         <div id="page-create-point">
         <header>
@@ -91,7 +143,7 @@ const CreatePoint = () => {
             </Link>
         </header>
 
-        <form> 
+        <form onSubmit={handleSubmit} > 
             <h1>Cadastro do ponto de coleta</h1>
 
             <fieldset>
@@ -105,6 +157,7 @@ const CreatePoint = () => {
                     <input type="text"
                            name="name"
                            id="name"
+                           onChange={handleChangeInput}
                     />
             </div>
 
@@ -114,6 +167,7 @@ const CreatePoint = () => {
                     <input type="email"
                            name="email"
                            id="email"
+                           onChange={handleChangeInput}
                     />
                 </div>
                 <div className="field">
@@ -121,6 +175,7 @@ const CreatePoint = () => {
                     <input type="text"
                            name="whatsapp"
                            id="whatsapp"
+                           onChange={handleChangeInput}
                     />
                 </div>
             </div>
@@ -170,7 +225,10 @@ const CreatePoint = () => {
 
                 <ul className="items-grid">
                     {items.map(items => (
-                        <li key={items.id} className="selected">
+                        <li key={items.id} 
+                        onClick={() => handleSelectItem(items.id)}
+                        className={selectItem.includes(items.id) ? 'selected' : ''}
+                         >
                         <img src={items.image_url} alt="Oleo"/>
                         <span>{items.title}</span>
                     </li>
