@@ -64,7 +64,7 @@ class PointsController {
 
         const {city, uf, items} = request.query //filtrando caso exista
 
-        const parsedItems = String(items)
+        const parsedItems = String(items)//array aq
         .split(',')
         .map(items => Number(items.trim()))
 
