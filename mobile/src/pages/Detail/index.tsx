@@ -5,7 +5,6 @@ import { Feather as Icon, FontAwesome } from '@expo/vector-icons'
 import { RectButton } from 'react-native-gesture-handler'
 
 
-
 const Detail = () => {
     const navigation = useNavigation()
     

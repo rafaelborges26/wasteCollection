@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native'
+import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Alert } from 'react-native'
 import { Feather as Icon } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import MapView, { Marker } from 'react-native-maps'
 import { SvgUri } from 'react-native-svg'
 import api from './../../services/api'
+import * as Location from 'expo-location'
+
 
     interface Item {
         id: number
@@ -17,13 +19,35 @@ const Points = () => {
     const navigation = useNavigation()
     
     const [items, setItems] = useState<Item[]>([]) //quando o tipo do estado for vetor criar interface
-    const [selectItem, setSelectItem] = useState<Number[]>([])
-
+    const [selectItem, setSelectItem] = useState<number[]>([])
+    const [initialPosition, setInitialPosition] = useState<[number,number]>([0,0])
     useEffect(() => {
         api.get('items').then(response => {
             setItems(response.data)
         })
     })
+
+    useEffect(() => {
+      async function loadPosition() {
+        const { status } = await Location.requestPermissionsAsync()
+        
+        if(status !== 'granted') { //se nao tiver aceito a permissão
+          Alert.alert('Opss',"Precisamos da sua permissão para obter a localização")
+          return;
+        }
+        
+        const location = await Location.getCurrentPositionAsync() 
+        const { latitude, longitude } = location.coords
+        setInitialPosition([
+          latitude,
+          longitude
+        ])
+      }
+      
+
+       loadPosition()
+
+    }, [])
 
     function handleNavigateBack() {
         navigation.goBack()
@@ -62,11 +86,14 @@ const Points = () => {
             </Text>
         
         <View style={styles.mapContainer} >
-            <MapView 
+            
+          {initialPosition[0] !== 0 && ( //if do React
+          <MapView  
                 style={styles.map}
+                loadingEnabled={initialPosition[0] === 0}
                 initialRegion={{
-                    latitude: -23.9549937,
-                    longitude: -46.3446748,
+                    latitude: initialPosition[0],
+                    longitude: initialPosition[1],
                     latitudeDelta: 0.014,
                     longitudeDelta: 0.014    
                 }} >
@@ -87,6 +114,7 @@ const Points = () => {
                 </Marker>
 
             </MapView>
+)}
 
         </View>
         </View>
