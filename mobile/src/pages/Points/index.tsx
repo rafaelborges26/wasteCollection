@@ -14,6 +14,14 @@ import * as Location from 'expo-location'
         image_url: string
     }
 
+    interface Point {
+      id: number
+      name: string
+      image: string
+      latitude: number,
+      longitude: number
+    }
+
 const Points = () => {
     
     const navigation = useNavigation()
@@ -21,6 +29,8 @@ const Points = () => {
     const [items, setItems] = useState<Item[]>([]) //quando o tipo do estado for vetor criar interface
     const [selectItem, setSelectItem] = useState<number[]>([])
     const [initialPosition, setInitialPosition] = useState<[number,number]>([0,0])
+    const [points, setPoints] = useState<Point[]>([])
+
     useEffect(() => {
         api.get('items').then(response => {
             setItems(response.data)
@@ -35,7 +45,7 @@ const Points = () => {
           Alert.alert('Opss',"Precisamos da sua permissão para obter a localização")
           return;
         }
-        
+
         const location = await Location.getCurrentPositionAsync() 
         const { latitude, longitude } = location.coords
         setInitialPosition([
@@ -44,17 +54,30 @@ const Points = () => {
         ])
       }
       
-
        loadPosition()
 
     }, [])
 
+      useEffect(() => {
+        api.get('points',{
+            params: {
+              city: 'Santos',
+              uf: 'SP',
+              items: [4]
+            }
+          }).then(response => {
+            setPoints(response.data)
+          })
+
+        },[])
+ 
     function handleNavigateBack() {
         navigation.goBack()
     }
-
-    function handleNavigatetoDetail() {
-        navigation.navigate('Detail')
+    
+    function handleNavigatetoDetail(id: number) {
+        navigation.navigate('Detail', { point_id: id })
+        console.log(id)
     }
 
     function handleSelectItem(id : number) {
@@ -97,21 +120,25 @@ const Points = () => {
                     latitudeDelta: 0.014,
                     longitudeDelta: 0.014    
                 }} >
-                <Marker
-                    style={styles.mapMarkerImage}
-                    coordinate={{
-                        latitude: -23.9549937,
-                        longitude: -46.3446748,
-                    }} 
-                    onPress={handleNavigatetoDetail}
+                
+                {points.map(point => (
+                  <Marker
+                  key={String(point.id)}
+                  style={styles.mapMarkerImage}
+                  coordinate={{
+                      latitude: point.latitude,
+                      longitude: point.longitude,
+                  }} 
+                  onPress={() => handleNavigatetoDetail(point.id)}
                 >
-                <View style={styles.mapMarkerContainer } >
-                    <Image 
-                        style={styles.mapMarkerImage}
-                        source={{ uri: "https://images.unsplash.com/photo-1556767576-5ec41e3239ea?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=200"}}/>
-                    <Text style={styles.mapMarkerTitle}>Mercado</Text>
-                </View>
-                </Marker>
+              <View style={styles.mapMarkerContainer } >
+                  <Image 
+                      style={styles.mapMarkerImage}
+                      source={{ uri: point.image}}/>
+                  <Text style={styles.mapMarkerTitle}>{point.name}</Text>
+              </View>
+              </Marker>
+                ) )}
 
             </MapView>
 )}

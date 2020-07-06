@@ -1,52 +1,93 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView } from 'react-native'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useRoute } from '@react-navigation/native'
 import { Feather as Icon, FontAwesome } from '@expo/vector-icons'
 import { RectButton } from 'react-native-gesture-handler'
+import api from './../../services/api'
+
+
+interface Params {
+  point_id: number
+}
+
+interface Data {
+  point: {
+    image: string
+    name: string
+    email: string
+    whatsapp: string
+    city: string
+    uf: string
+  }
+  items: {
+    title: string
+  }[]
+}
 
 
 const Detail = () => {
+
+  const [data, setData] = useState<Data>({} as Data)
+
+
     const navigation = useNavigation()
-    
+    const route = useRoute() //variaveis q sao enviadas atraves dos parametros
+
+    console.log(route.params)
+
+    const routeParams = route.params as Params //para usarmos a interface para obter os valores enviados na rota
+
+ 
+  useEffect(() => {
+    api.get(`points/${routeParams.point_id}`).then(Response => {
+      setData(Response.data)
+    })
+  })
+
     function handleNavigateBack() {
         navigation.goBack()
     }
 
+
+    if (!data.point) { //se nao tiver carregado o ponto ainda, n mostra nada, ate o ponto estar carregado
+      return null //fazer uma tela de loading
+    }
     return (
-        <SafeAreaView style={{flex: 1}} >
-        <View style={styles.container}>
-            <TouchableOpacity onPress={handleNavigateBack} >
-                <Icon name="arrow-left" size={20} color="#34cb79" />
-            </TouchableOpacity>
-            <Image 
-            style={styles.pointImage}
-            source={{uri: 'https://images.unsplash.com/photo-1556767576-5ec41e3239ea?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=200'}} 
-        />
-        <Text style={styles.pointName}>Mercadão testao</Text>
-        <Text style={styles.pointItems}> Lâmpadas, Óleo de cozinha </Text>
-        <View style={styles.address}>
-            <Text style={styles.addressTitle}>
-            Endereço
-            </Text>
-            <Text style={styles.addressContent} >
-                Santos / SP
-            </Text>
-        </View>
-        </View>
-        <View style={styles.footer}>
-            <RectButton style={styles.button} onPress={ () => {}} >
-            <FontAwesome name="whatsapp" size={20} color="#FFF" />
-            <Text style={styles.buttonText}>Whatsapp</Text>
-            </RectButton>
+  
+      <SafeAreaView style={{flex: 1}} >
+      <View style={styles.container}>
+          <TouchableOpacity onPress={handleNavigateBack} >
+              <Icon name="arrow-left" size={20} color="#34cb79" />
+          </TouchableOpacity>
+          <Image 
+          style={styles.pointImage}
+          source={{uri: 'https://images.unsplash.com/photo-1556767576-5ec41e3239ea?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=200'}} 
+      />
+      <Text style={styles.pointName}>Mercadão testao</Text>
+      <Text style={styles.pointItems}> Lâmpadas, Óleo de cozinha </Text>
+      <View style={styles.address}>
+          <Text style={styles.addressTitle}>
+          Endereço
+          </Text>
+          <Text style={styles.addressContent} >
+              Santos / SP
+          </Text>
+      </View>
+      </View>
+      <View style={styles.footer}>
+          <RectButton style={styles.button} onPress={ () => {}} >
+          <FontAwesome name="whatsapp" size={20} color="#FFF" />
+          <Text style={styles.buttonText}>Whatsapp</Text>
+          </RectButton>
 
-            <RectButton style={styles.button} onPress={ () => {}} >
-            <Icon name="mail" size={20} color="#FFF" />
-            <Text style={styles.buttonText}>Email</Text>
-            </RectButton>
+          <RectButton style={styles.button} onPress={ () => {}} >
+          <Icon name="mail" size={20} color="#FFF" />
+          <Text style={styles.buttonText}>Email</Text>
+          </RectButton>
 
-        </View>
-        </SafeAreaView>
-
+      </View>
+      </SafeAreaView>
+  
     )
 }
 
