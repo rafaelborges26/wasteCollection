@@ -70,13 +70,14 @@ class PointsController {
 
         //get items
         
-        const points = await knex('points').select('*')
+        const points = await knex('points')
         .join('point_items', 'points.id', '=', 'point_items.point_id') 
         .whereIn('point_items.item_id',parsedItems)
-        .where('points.city', String(city))
-        .where('points.uf', String(uf))
+        .where('city', String(city))
+        .where('uf', String(uf))
         .distinct()
-  
+        .select('points.*')
+        
         response.json(points)
         console.log(city, uf, items)
 
