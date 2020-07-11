@@ -63,7 +63,7 @@ const Points = () => {
             params: {
               city: 'Santos',
               uf: 'SP',
-              items: [4]
+              items: [1,6]
             }
           }).then(response => {
             setPoints(response.data)
@@ -77,7 +77,7 @@ const Points = () => {
     
     function handleNavigatetoDetail(id: number) {
         navigation.navigate('Detail', { point_id: id })
-        console.log(id)
+        //console.log(id)
     }
 
     function handleSelectItem(id : number) {

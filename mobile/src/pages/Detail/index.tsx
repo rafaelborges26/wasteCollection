@@ -33,7 +33,7 @@ const Detail = () => {
     const navigation = useNavigation()
     const route = useRoute() //variaveis q sao enviadas atraves dos parametros
 
-    console.log(route.params)
+    //console.log(route.params)
 
     const routeParams = route.params as Params //para usarmos a interface para obter os valores enviados na rota
 
