@@ -57,11 +57,9 @@ const Detail = () => {
       })
     }
 
-    function handleComposeWhatsApp() {
-      Linking.openURL(`whatsapp://send?phone=${data.point.whatsapp}&text=Tenho interesse sobre coleta de reíduos`)
+    function handleWhatsapp() {
+      Linking.openURL(`whatsapp://send?phone=${data.point.whatsapp}&text=Tenho interesse sobre coleta de resíduos`)
     }
-
-
 
 
     if (!data.point) { //se nao tiver carregado o ponto ainda, n mostra nada, ate o ponto estar carregado
@@ -92,12 +90,12 @@ const Detail = () => {
       </View>
       </View>
       <View style={styles.footer}>
-          <RectButton style={styles.button} onPress={ () => {handleComposeWhatsApp}} >
+          <RectButton style={styles.button} onPress={handleWhatsapp} >
           <FontAwesome name="whatsapp" size={20} color="#FFF" />
           <Text style={styles.buttonText}>Whatsapp</Text>
           </RectButton>
 
-          <RectButton style={styles.button} onPress={ () => {handleComposeMail}} >
+          <RectButton style={styles.button} onPress={handleComposeMail} >
           <Icon name="mail" size={20} color="#FFF" />
           <Text style={styles.buttonText}>Email</Text>
           </RectButton>
@@ -118,7 +116,7 @@ const styles = StyleSheet.create({
     pointImage: {
       width: '100%',
       height: 120,
-      resizeMode: 'cover',
+      //resizeMode: 'cover',
       borderRadius: 10,
       marginTop: 32,
     },
