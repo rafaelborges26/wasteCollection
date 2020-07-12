@@ -1,15 +1,58 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Feather as Icon } from '@expo/vector-icons'
 import { View, ImageBackground, Text, Image, StyleSheet, TextInput, KeyboardAvoidingView, Platform } from 'react-native'
-import { RectButton } from "react-native-gesture-handler";
+import { RectButton } from "react-native-gesture-handler"
 import { useNavigation } from '@react-navigation/native'
+import RNPickerSelect from 'react-native-picker-select';
+import axios from 'axios'
+import api from '../../services/api'
+
+interface Items {
+  label: string
+  value: string
+}
+
+interface IBGEUFresponse {
+  sigla: string 
+}
+
+interface IBGECityresponse {
+  nome: string
+}
 
 const Home = () => {
 
-  const [uf, setUf] = useState('')
-  const [city, setCity] = useState('')
+  const [ufselected, setUfSelected] = useState('0')
+  const [cityselected, setCitySelected] = useState('0')
+  const [uf, setUf] = useState<string[]>([])
+  const [ufLabel, setUfLabel] = useState<Items>({} as Items)
+  const [allUf, setAllUf] = useState({
+    label: '',
+    value: '',
+    })
+
+  const [city, setCity] = useState<string[]>([])
 
   const navigation = useNavigation()
+
+  useEffect(() => {
+    api.get<IBGEUFresponse[]>('https://servicodados.ibge.gov.br/api/v1/localidades/estados').then( response => {
+      const ufInitials = response.data.map(uf => uf.sigla) //pegando as siglas
+      setUf(ufInitials)
+      
+    })
+
+    api.get<IBGEUFresponse[]>('https://servicodados.ibge.gov.br/api/v1/localidades/estados').then( response => {
+      const ufInitials = response.data.map(uf => {
+        setAllUf({ ...allUf, 'label': `lab ${uf.sigla}`,
+                  'value': uf.sigla}) })        
+  }
+    )
+  
+
+  },[])
+
+  
 
   function handleNavigateToPoints() {
     navigation.navigate("Points", {city, uf}) //para navegar para outra tela
@@ -28,24 +71,12 @@ const Home = () => {
         </View>
       </View>
 
-      <TextInput 
-        style={styles.input}
-        placeholder="Digite a UF"
-        value={uf}
-        maxLength={2}
-        autoCapitalize="characters"
-        autoCorrect={false}
-        onChangeText={Text => setUf(Text) }  
-      />
-      <TextInput 
-        style={styles.input}
-        placeholder="Digite a cidade"
-        value={city}
-        autoCorrect={false}
-        onChangeText={Text => setCity(Text)}
-      />
+      <RNPickerSelect
+            onValueChange={(value) => setUfSelected(value) }
+            items = {[allUf]}
+          />
 
-
+          
       <View style={styles.footer}>
         <RectButton style={styles.button} onPress={handleNavigateToPoints} >
           <View style={styles.buttonIcon}>
