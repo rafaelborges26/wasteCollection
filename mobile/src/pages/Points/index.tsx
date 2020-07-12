@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Alert } from 'react-native'
 import { Feather as Icon } from '@expo/vector-icons'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useRoute } from '@react-navigation/native'
 import MapView, { Marker } from 'react-native-maps'
 import { SvgUri } from 'react-native-svg'
 import api from './../../services/api'
 import * as Location from 'expo-location'
+import Routes from '../../routes'
 
+    interface Params {
+      uf: string
+      city: string
+    }
 
     interface Item {
         id: number
@@ -22,8 +27,15 @@ import * as Location from 'expo-location'
       longitude: number
     }
 
-const Points = () => {
     
+    
+const Points = () => {
+  
+  const routes = useRoute()
+
+  const routeParams = routes.params as Params //definindo o formado com o setado na interface
+                        //pegando os parametros passados na url
+
     const navigation = useNavigation()
     
     const [items, setItems] = useState<Item[]>([]) //quando o tipo do estado for vetor criar interface
@@ -61,15 +73,15 @@ const Points = () => {
       useEffect(() => {
         api.get('points',{
             params: {
-              city: 'Santos',
-              uf: 'SP',
-              items: [1,6]
+              city: routeParams.city,
+              uf: routeParams.uf,
+              items: selectItem
             }
           }).then(response => {
             setPoints(response.data)
           })
 
-        },[])
+        },[selectItem])
  
     function handleNavigateBack() {
         navigation.goBack()
@@ -250,7 +262,7 @@ const styles = StyleSheet.create({
       borderWidth: 2,
       borderColor: '#eee',
       height: 120,
-      width: 120,
+      //width: 120,[1,6]
       borderRadius: 8,
       paddingHorizontal: 16,
       paddingTop: 20,
