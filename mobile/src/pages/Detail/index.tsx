@@ -4,6 +4,7 @@ import { useNavigation, useRoute } from '@react-navigation/native'
 import { Feather as Icon, FontAwesome } from '@expo/vector-icons'
 import { RectButton } from 'react-native-gesture-handler'
 import api from './../../services/api'
+import * as MailComposer from 'expo-mail-composer';
 
 
 interface Params {
@@ -39,13 +40,23 @@ const Detail = () => {
 
  
   useEffect(() => {
-    api.get(`points/${routeParams.point_id}`).then(Response => {
-      setData(Response.data)
+    api.get(`points/${routeParams.point_id}`).then(response => {
+      setData(response.data)
     })
   })
 
     function handleNavigateBack() {
         navigation.goBack()
+    }
+
+    function handleComposeMail() {
+
+      MailComposer.composeAsync({
+        subject: 'Interesse na coleta de resíduos',
+        recipients: [data.point.email],
+      })
+
+
     }
 
 
@@ -61,16 +72,18 @@ const Detail = () => {
           </TouchableOpacity>
           <Image 
           style={styles.pointImage}
-          source={{uri: 'https://images.unsplash.com/photo-1556767576-5ec41e3239ea?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=200'}} 
+          source={{uri: data.point.image}} 
       />
-      <Text style={styles.pointName}>Mercadão testao</Text>
-      <Text style={styles.pointItems}> Lâmpadas, Óleo de cozinha </Text>
+      <Text style={styles.pointName}>{data.point.name}</Text>
+      <Text style={styles.pointItems}>
+        {data.items.map(item => item.title).join(', ')}   
+      </Text>
       <View style={styles.address}>
           <Text style={styles.addressTitle}>
-          Endereço
+            Endereço
           </Text>
           <Text style={styles.addressContent} >
-              Santos / SP
+          {data.point.city}, {data.point.uf}
           </Text>
       </View>
       </View>
@@ -80,7 +93,7 @@ const Detail = () => {
           <Text style={styles.buttonText}>Whatsapp</Text>
           </RectButton>
 
-          <RectButton style={styles.button} onPress={ () => {}} >
+          <RectButton style={styles.button} onPress={ () => {handleComposeMail}} >
           <Icon name="mail" size={20} color="#FFF" />
           <Text style={styles.buttonText}>Email</Text>
           </RectButton>

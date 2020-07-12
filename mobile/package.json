@@ -16,6 +16,7 @@
     "axios": "^0.19.2",
     "constants": "^0.0.2",
     "expo": "^38.0.8",
+    "expo-mail-composer": "~8.2.1",
     "expo-status-bar": "^1.0.2",
     "location": "^0.0.1",
     "react": "~16.11.0",
