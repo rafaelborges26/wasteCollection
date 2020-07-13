@@ -22,41 +22,17 @@ interface IBGECityresponse {
 
 const Home = () => {
 
-  const [ufselected, setUfSelected] = useState('0')
-  const [cityselected, setCitySelected] = useState('0')
-  const [uf, setUf] = useState<string[]>([])
-  const [ufLabel, setUfLabel] = useState<Items>({} as Items)
-  const [allUf, setAllUf] = useState({
-    label: '',
-    value: '',
-    })
-
-  const [city, setCity] = useState<string[]>([])
+  const [uf, setUf] = useState('')
+  const [city, setCity] = useState('')
+  const [teste, setTeste] = useState('0')
 
   const navigation = useNavigation()
-
-  useEffect(() => {
-    api.get<IBGEUFresponse[]>('https://servicodados.ibge.gov.br/api/v1/localidades/estados').then( response => {
-      const ufInitials = response.data.map(uf => uf.sigla) //pegando as siglas
-      setUf(ufInitials)
-      
-    })
-
-    api.get<IBGEUFresponse[]>('https://servicodados.ibge.gov.br/api/v1/localidades/estados').then( response => {
-      const ufInitials = response.data.map(uf => {
-        setAllUf({ ...allUf, 'label': `lab ${uf.sigla}`,
-                  'value': uf.sigla}) })        
-  }
-    )
-  
-
-  },[])
-
   
 
   function handleNavigateToPoints() {
     navigation.navigate("Points", {city, uf}) //para navegar para outra tela
   }
+
 
     return(
       <>
@@ -71,12 +47,24 @@ const Home = () => {
         </View>
       </View>
 
-      <RNPickerSelect
-            onValueChange={(value) => setUfSelected(value) }
-            items = {[allUf]}
-          />
+      <TextInput 
+        style={styles.input}
+        placeholder="Digite a UF"
+        value={uf}
+        maxLength={2}
+        autoCapitalize="characters"
+        autoCorrect={false}
+        onChangeText={Text => setUf(Text) }  
+      />
 
-          
+      <TextInput 
+        style={styles.input}
+        placeholder="Digite a cidade"
+        value={city}
+        autoCorrect={false}
+        onChangeText={Text => setCity(Text)}
+      />
+
       <View style={styles.footer}>
         <RectButton style={styles.button} onPress={handleNavigateToPoints} >
           <View style={styles.buttonIcon}>
@@ -125,13 +113,20 @@ const styles = StyleSheet.create({
   
     footer: {},
   
-    select: {},
+    select: {
+      height: 60,
+      //backgroundColor: '#FFF',
+      borderRadius: 10,
+      //marginBottom: 8,
+      //paddingHorizontal: 24,
+      fontSize: 16,
+    },
   
     input: {
       height: 60,
       backgroundColor: '#FFF',
       borderRadius: 10,
-      marginBottom: 8,
+      //marginBottom: 8,
       paddingHorizontal: 24,
       fontSize: 16,
     },
