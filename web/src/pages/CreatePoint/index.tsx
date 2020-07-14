@@ -7,6 +7,7 @@ import { Map, TileLayer, Marker } from 'react-leaflet' //marker é o alfinete q 
 import api from '../../services/api'
 import axios from 'axios'
 import { LeafletMouseEvent } from 'leaflet'
+import Dropzone from './../../components/Dropzone'
 
 interface Item {
     id: number,
@@ -145,6 +146,8 @@ const CreatePoint = () => {
 
         <form onSubmit={handleSubmit} > 
             <h1>Cadastro do ponto de coleta</h1>
+
+            <Dropzone/>
 
             <fieldset>
                 <legend>
