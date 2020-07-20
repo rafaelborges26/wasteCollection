@@ -1,5 +1,4 @@
 # Omnistack-week
-backend of development of omnistack week 
 
 <h5>Coleta de Resíduos</h5>
 
